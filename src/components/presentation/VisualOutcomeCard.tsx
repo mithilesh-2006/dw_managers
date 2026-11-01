@@ -1,25 +1,26 @@
 import React from 'react';
 import {
   CheckCircle2,
-  AlertTriangle,
-  ArrowRight,
   HardDrive,
   Clock,
   ShieldCheck,
-  ShieldAlert,
-  Database,
   LifeBuoy,
   Zap,
-  TrendingDown,
   Boxes,
-  Split,
-  Award,
-  Layers,
   Terminal,
-  Activity,
   CheckCheck,
-  XCircle,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Cell,
+} from 'recharts';
 
 interface VisualOutcomeProps {
   managerId: string;
@@ -27,507 +28,700 @@ interface VisualOutcomeProps {
 
 export const VisualOutcomeCard: React.FC<VisualOutcomeProps> = ({ managerId }) => {
   switch (managerId) {
-    // 1. Configuration Manager Visual Outcome
-    case 'config':
+    // -------------------------------------------------------------
+    // Manager 1: System Configuration Manager
+    // -------------------------------------------------------------
+    case 'config': {
+      const storageChart = [
+        { name: 'Before (Old Space)', freeGb: 716, fill: '#f59e0b' },
+        { name: 'After (Expanded Space)', freeGb: 1228, fill: '#10b981' },
+      ];
+
       return (
-        <div className="bg-slate-950 border border-blue-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">
-                Visual Outcome: Storage Capacity Expanded
-              </span>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              Safe Zone: 40% Utilized
+        <div className="bg-slate-950 border border-blue-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW (Before -> Manager -> After) */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
             </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Before */}
-            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
-              <div className="text-[11px] font-bold uppercase text-slate-400 font-mono">
-                Before Allocation (Constrained)
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  600 new students are enrolling. Warehouse hard drive has only <strong>716 GB free</strong>.
+                </p>
               </div>
-              <div className="flex justify-between text-xs font-mono">
-                <span className="text-slate-400">Allocated: 1536 GB</span>
-                <span className="text-amber-400 font-bold">53% Full</span>
+              <div className="p-3 bg-blue-950/60 rounded-xl border border-blue-500/40 space-y-1">
+                <span className="text-blue-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Expands hard drive storage from <strong>1536 GB to 2048 GB</strong> and increases RAM.
+                </p>
               </div>
-              <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                <div className="bg-amber-500 h-full w-[53%]"></div>
-              </div>
-            </div>
-
-            {/* After */}
-            <div className="bg-slate-900/90 p-4 rounded-xl border border-blue-500/40 space-y-2">
-              <div className="text-[11px] font-bold uppercase text-emerald-400 font-mono">
-                After Reconfiguration (Expanded)
-              </div>
-              <div className="flex justify-between text-xs font-mono">
-                <span className="text-slate-200">Allocated: 2048 GB</span>
-                <span className="text-emerald-400 font-bold">40% Full (Healthy)</span>
-              </div>
-              <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full w-[40%]"></div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-400 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  Storage now has <strong>1228 GB free space</strong>. Future student uploads won't crash!
+                </p>
               </div>
             </div>
           </div>
 
-          {/* 3 Visual Metric Badges */}
-          <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-            <div className="bg-blue-950/60 p-2.5 rounded-xl border border-blue-500/30">
-              <span className="text-slate-400 text-[10px] block">Added Disk Capacity</span>
-              <span className="text-blue-300 font-bold">+512 GB SAN Space</span>
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <HardDrive className="w-4 h-4 text-blue-400" />
+                Available Free Storage Comparison Chart (Gigabytes)
+              </span>
+              <span className="text-emerald-400">+512 GB Added</span>
             </div>
-            <div className="bg-indigo-950/60 p-2.5 rounded-xl border border-indigo-500/30">
-              <span className="text-slate-400 text-[10px] block">RAM Buffer Pool</span>
-              <span className="text-indigo-300 font-bold">16,384 MB Active</span>
-            </div>
-            <div className="bg-emerald-950/60 p-2.5 rounded-xl border border-emerald-500/30">
-              <span className="text-slate-400 text-[10px] block">Disk Outage Risk</span>
-              <span className="text-emerald-400 font-bold">0% (Guaranteed Safe)</span>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={storageChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} unit=" GB" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                    formatter={(val: any) => [`${val} GB Free Space`, 'Capacity']}
+                  />
+                  <Bar dataKey="freeGb" radius={[6, 6, 0, 0]}>
+                    {storageChart.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
       );
+    }
 
-    // 2. Scheduling Manager Visual Outcome
-    case 'scheduling':
+    // -------------------------------------------------------------
+    // Manager 2: System Scheduling Manager
+    // -------------------------------------------------------------
+    case 'scheduling': {
+      const scheduleChart = [
+        { time: 'Daytime (9 AM - 6 PM)', batchLoad: 0, userQueries: 100 },
+        { time: 'Midnight Window (11:30 PM)', batchLoad: 100, userQueries: 5 },
+      ];
+
       return (
-        <div className="bg-slate-950 border border-purple-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-purple-400" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-purple-400">
-                Visual Outcome: Automated Midnight Batch Window
-              </span>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              Job Status: COMPLETED
+        <div className="bg-slate-950 border border-purple-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
             </span>
-          </div>
-
-          {/* Timeline Diagram */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
-            <div className="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-1">
-              <div className="text-amber-400 font-bold">09:00 - 18:00 Peak Daytime</div>
-              <p className="text-slate-400 text-[11px] leading-relaxed">
-                Heavy batch updates are locked out. Daytime college queries run at full speed with <strong>0% lock contention</strong>.
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  Campus biometric scanners record attendance all day. Loading them during the day slows down college staff.
+                </p>
+              </div>
+              <div className="p-3 bg-purple-950/60 rounded-xl border border-purple-500/40 space-y-1">
+                <span className="text-purple-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Holds data in queue and sets an automatic clock trigger to run at <strong>23:30 Midnight</strong>.
+                </p>
+              </div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-400 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  <strong>60 attendance records</strong> load overnight with <strong>0% daytime system slowdown</strong>.
+                </p>
+              </div>
             </div>
-            <div className="bg-purple-950/60 p-3.5 rounded-xl border border-purple-500/40 space-y-1">
-              <div className="text-purple-300 font-bold">23:30 Midnight Maintenance Window</div>
-              <p className="text-slate-200 text-[11px] leading-relaxed">
-                Scheduler automatically executed <strong>Biometric Attendance ETL</strong> in the background. Zero user disruption.
-              </p>
-            </div>
           </div>
 
-          {/* Workflow Pipeline Line */}
-          <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex flex-wrap items-center justify-around gap-2 text-xs font-mono text-center">
-            <div className="text-slate-300">Biometric Campus RFID</div>
-            <ArrowRight className="w-4 h-4 text-purple-400 shrink-0" />
-            <div className="text-purple-300 font-bold">Cron Scheduler Trigger</div>
-            <ArrowRight className="w-4 h-4 text-purple-400 shrink-0" />
-            <div className="text-emerald-400 font-bold">Fact_Attendance (+60 records)</div>
-          </div>
-        </div>
-      );
-
-    // 3. Event Manager Visual Outcome
-    case 'event':
-      return (
-        <div className="bg-slate-950 border border-amber-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">
-                Visual Outcome: Real-Time Incident Telemetry & Action Loop
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-purple-400" />
+                Workload Schedule Chart: Daytime vs Midnight Batch Loading (%)
               </span>
+              <span className="text-purple-300">Zero Lock Contention</span>
             </div>
-            <span className="text-xs font-mono font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/30">
-              Alert Status: LOGGED & ACKNOWLEDGED
-            </span>
-          </div>
-
-          {/* 4-Step Incident Flow */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-mono text-center">
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-              <span className="text-[10px] text-slate-500 block">1. Detection</span>
-              <span className="font-bold text-rose-400">Incident Captured</span>
-              <div className="text-[10px] text-slate-400">Timestamp: 23:30:12</div>
-            </div>
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-              <span className="text-[10px] text-slate-500 block">2. Categorization</span>
-              <span className="font-bold text-amber-400">Warning Alert</span>
-              <div className="text-[10px] text-slate-400">Threshold Breached</div>
-            </div>
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-              <span className="text-[10px] text-slate-500 block">3. Prescribed Action</span>
-              <span className="font-bold text-blue-400">Mitigation Sent</span>
-              <div className="text-[10px] text-slate-400">Quarantine Bad Rows</div>
-            </div>
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-              <span className="text-[10px] text-slate-500 block">4. Resolution</span>
-              <span className="font-bold text-emerald-400">Audit Saved</span>
-              <div className="text-[10px] text-slate-400">Zero Silent Failures</div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={scheduleChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="time" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} unit="%" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                  />
+                  <Bar dataKey="batchLoad" name="Batch Data Loading" fill="#a855f7" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="userQueries" name="Staff Daily Reports" fill="#38bdf8" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
       );
+    }
 
-    // 4. Database Manager Visual Outcome
-    case 'database':
+    // -------------------------------------------------------------
+    // Manager 3: System Event Manager
+    // -------------------------------------------------------------
+    case 'event': {
+      const eventChart = [
+        { category: 'Informational (Normal)', count: 18, fill: '#3b82f6' },
+        { category: 'Warnings (High Storage)', count: 4, fill: '#f59e0b' },
+        { category: 'Errors (Bad Data)', count: 2, fill: '#ef4444' },
+      ];
+
       return (
-        <div className="bg-slate-950 border border-emerald-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
-                Visual Outcome: Schema Catalog & RBAC Security Boundaries
-              </span>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              Access Matrix: ENFORCED
+        <div className="bg-slate-950 border border-amber-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
             </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
-            {/* SuperAdmin Role */}
-            <div className="bg-slate-900/90 p-4 rounded-xl border border-emerald-500/30 space-y-2">
-              <div className="flex justify-between items-center text-emerald-400 font-bold">
-                <span>Role: DB_ADMIN</span>
-                <span className="text-[10px] bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">Admin</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  A loading job fails or hard drive space reaches 90%. Raw error signal occurs inside the system.
+                </p>
               </div>
-              <div className="space-y-1 text-slate-300 text-[11px]">
-                <div>SELECT: <strong className="text-emerald-400">ALLOWED ✅</strong></div>
-                <div>INSERT: <strong className="text-emerald-400">ALLOWED ✅</strong></div>
-                <div>UPDATE: <strong className="text-emerald-400">ALLOWED ✅</strong></div>
-                <div>DELETE: <strong className="text-emerald-400">ALLOWED ✅</strong></div>
+              <div className="p-3 bg-amber-950/60 rounded-xl border border-amber-500/40 space-y-1">
+                <span className="text-amber-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Catches the error, labels the severity (Warning or Error), and prescribes the exact fix.
+                </p>
               </div>
-            </div>
-
-            {/* Guest Auditor Role */}
-            <div className="bg-slate-900/90 p-4 rounded-xl border border-red-500/30 space-y-2">
-              <div className="flex justify-between items-center text-rose-400 font-bold">
-                <span>Role: GUEST_AUDITOR</span>
-                <span className="text-[10px] bg-red-950 px-2 py-0.5 rounded border border-red-500/30">Restricted</span>
-              </div>
-              <div className="space-y-1 text-slate-300 text-[11px]">
-                <div>SELECT: <strong className="text-slate-500">READ-ONLY 👁️</strong></div>
-                <div>INSERT: <strong className="text-red-400">DENIED ❌</strong></div>
-                <div>UPDATE: <strong className="text-red-400">DENIED ❌</strong></div>
-                <div>DELETE: <strong className="text-red-400">DENIED ❌</strong></div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-400 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  The administrator receives an instant notification with steps to resolve the issue. Zero silent failures.
+                </p>
               </div>
             </div>
           </div>
-          <div className="text-[11px] font-mono text-slate-400 text-center">
-            Sensitive student marks and attendance records are protected from unauthorized mutations.
-          </div>
-        </div>
-      );
 
-    // 5. Backup Recovery Manager Visual Outcome
-    case 'backup':
-      return (
-        <div className="bg-slate-950 border border-teal-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <LifeBuoy className="w-4 h-4 text-teal-400" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-teal-400">
-                Visual Outcome: Catastrophic Crash & Point-in-Time Restoration
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                Live College Event Severity Breakdown Chart
               </span>
+              <span className="text-amber-400">100% Tracked</span>
             </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              Recovery: 100% SUCCESS
-            </span>
-          </div>
-
-          {/* Visual Sequence */}
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-xs font-mono text-center">
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-              <span className="text-[10px] text-slate-500 block">Step 1</span>
-              <span className="font-bold text-teal-300">Snapshot Frozen</span>
-              <div className="text-[10px] text-slate-400">142.5 MB Dump</div>
-            </div>
-            <div className="bg-red-950/60 p-3 rounded-xl border border-red-500/40 space-y-1">
-              <span className="text-[10px] text-red-400 block">Step 2</span>
-              <span className="font-bold text-red-300">Disk Failure ⚠️</span>
-              <div className="text-[10px] text-red-400">Cluster Crashed</div>
-            </div>
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-              <span className="text-[10px] text-slate-500 block">Step 3</span>
-              <span className="font-bold text-blue-300">Point-in-Time Restore</span>
-              <div className="text-[10px] text-slate-400">Catalog Mounted</div>
-            </div>
-            <div className="bg-emerald-950/60 p-3 rounded-xl border border-emerald-500/40 space-y-1">
-              <span className="text-[10px] text-emerald-400 block">Step 4</span>
-              <span className="font-bold text-emerald-300">State Restored ✅</span>
-              <div className="text-[10px] text-emerald-400">Health: NORMAL</div>
-            </div>
-          </div>
-
-          <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex justify-between text-xs font-mono">
-            <span className="text-slate-400">Recovery Point Objective (RPO): <strong className="text-emerald-400">0 Minutes Lost</strong></span>
-            <span className="text-slate-400">Recovery Time (RTO): <strong className="text-teal-300">&lt; 2 Seconds</strong></span>
-          </div>
-        </div>
-      );
-
-    // 6. Load Manager (ETL) Visual Outcome
-    case 'load':
-      return (
-        <div className="bg-slate-950 border border-blue-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">
-                Visual Outcome: 3-Tier ETL Pipeline Execution
-              </span>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              Pipeline: EXTRACT &rarr; TRANSFORM &rarr; LOAD
-            </span>
-          </div>
-
-          {/* 3 Step Visual Pipeline */}
-          <div className="grid grid-cols-3 gap-3 text-center text-xs font-mono">
-            <div className="bg-slate-900 p-3 rounded-xl border border-blue-500/30 space-y-1">
-              <span className="text-[10px] text-blue-400 uppercase block font-bold">1. Extract</span>
-              <span className="text-base font-black text-white">7 Rows</span>
-              <div className="text-[10px] text-slate-400">Raw Biometric CSV</div>
-            </div>
-            <div className="bg-slate-900 p-3 rounded-xl border border-indigo-500/30 space-y-1">
-              <span className="text-[10px] text-indigo-400 uppercase block font-bold">2. Transform</span>
-              <span className="text-base font-black text-amber-400">1 Rejected</span>
-              <div className="text-[10px] text-slate-400">Duplicate Key Caught</div>
-            </div>
-            <div className="bg-slate-900 p-3 rounded-xl border border-emerald-500/30 space-y-1">
-              <span className="text-[10px] text-emerald-400 uppercase block font-bold">3. Load</span>
-              <span className="text-base font-black text-emerald-400">6 Clean Rows</span>
-              <div className="text-[10px] text-slate-400">Fact_Attendance</div>
-            </div>
-          </div>
-
-          {/* Clean vs Quarantined Preview */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
-            <div className="bg-emerald-950/40 p-3 rounded-xl border border-emerald-500/30 text-emerald-200">
-              <div className="font-bold flex items-center gap-1.5 mb-1 text-emerald-400">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Clean Facts Inserted:
-              </div>
-              <div className="text-[11px] text-slate-300">PSG21CS001, PSG21CS002, PSG21EC001... (100% Validated)</div>
-            </div>
-            <div className="bg-rose-950/40 p-3 rounded-xl border border-rose-500/30 text-rose-200">
-              <div className="font-bold flex items-center gap-1.5 mb-1 text-rose-400">
-                <XCircle className="w-3.5 h-3.5" /> Quarantined Error Row:
-              </div>
-              <div className="text-[11px] text-slate-300">Duplicate student_id "PSG21CS001" skipped to protect PK uniqueness.</div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={eventChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="category" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                  />
+                  <Bar dataKey="count" name="Logged Events" radius={[6, 6, 0, 0]}>
+                    {eventChart.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
       );
+    }
 
-    // 7. Warehouse Manager Visual Outcome
-    case 'warehouse':
+    // -------------------------------------------------------------
+    // Manager 4: System Database Manager
+    // -------------------------------------------------------------
+    case 'database': {
+      const tableSizesChart = [
+        { table: 'Dim_Student', rows: 60, fill: '#3b82f6' },
+        { table: 'Fact_Attendance', rows: 60, fill: '#10b981' },
+        { table: 'Fact_Examination', rows: 60, fill: '#a855f7' },
+        { table: 'Fact_Placement', rows: 18, fill: '#f59e0b' },
+      ];
+
       return (
-        <div className="bg-slate-950 border border-indigo-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Boxes className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400">
-                Visual Outcome: Star Schema Topology & Partition Pruning
-              </span>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              75% I/O Scan Reduction
+        <div className="bg-slate-950 border border-emerald-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
             </span>
-          </div>
-
-          {/* Visual Star Schema */}
-          <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex items-center justify-center gap-4 text-xs font-mono flex-wrap">
-            <div className="p-2.5 bg-blue-950 rounded-lg border border-blue-500/40 text-blue-300">
-              Dim_Student
-            </div>
-            <div className="text-indigo-400">&larr;&rarr;</div>
-            <div className="p-3.5 bg-indigo-900 rounded-xl border-2 border-indigo-400 font-bold text-white shadow-lg">
-              Fact_Attendance (Central Fact)
-            </div>
-            <div className="text-indigo-400">&larr;&rarr;</div>
-            <div className="p-2.5 bg-emerald-950 rounded-lg border border-emerald-500/40 text-emerald-300">
-              Dim_Department
-            </div>
-          </div>
-
-          {/* Partition Pruning Visual */}
-          <div className="grid grid-cols-4 gap-2 text-center text-xs font-mono">
-            <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 text-slate-500">
-              2021-22 (Skipped ⏭️)
-            </div>
-            <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 text-slate-500">
-              2022-23 (Skipped ⏭️)
-            </div>
-            <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 text-slate-500">
-              2023-24 (Skipped ⏭️)
-            </div>
-            <div className="p-2 bg-indigo-950 rounded-lg border border-indigo-400 text-indigo-200 font-bold">
-              2024-25 (Scanned ✅)
-            </div>
-          </div>
-        </div>
-      );
-
-    // 8. Query Manager Visual Outcome
-    case 'query':
-      return (
-        <div className="bg-slate-950 border border-sky-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-sky-400" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-sky-400">
-                Visual Outcome: Analytical Query Results (Fact_Placement)
-              </span>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              Executed in 14.2 ms
-            </span>
-          </div>
-
-          {/* Visual Presentation Table */}
-          <div className="overflow-x-auto border border-slate-800 rounded-xl font-mono text-xs">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-900 text-sky-400 border-b border-slate-800">
-                  <th className="p-2.5">Department</th>
-                  <th className="p-2.5">Offers Placed</th>
-                  <th className="p-2.5">Avg Package (LPA)</th>
-                  <th className="p-2.5">Highest Package (LPA)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/80 text-slate-200">
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-2.5 font-bold text-blue-400">CSE</td>
-                  <td className="p-2.5">11 Students</td>
-                  <td className="p-2.5 text-emerald-400 font-bold">13.50 LPA</td>
-                  <td className="p-2.5 text-amber-400 font-bold">24.00 LPA (AWS)</td>
-                </tr>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-2.5 font-bold text-indigo-400">ECE</td>
-                  <td className="p-2.5">4 Students</td>
-                  <td className="p-2.5 text-emerald-400 font-bold">11.88 LPA</td>
-                  <td className="p-2.5 text-amber-400 font-bold">17.50 LPA (TI)</td>
-                </tr>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-2.5 font-bold text-purple-400">IT</td>
-                  <td className="p-2.5">2 Students</td>
-                  <td className="p-2.5 text-emerald-400 font-bold">16.50 LPA</td>
-                  <td className="p-2.5 text-amber-400 font-bold">22.00 LPA (Goldman Sachs)</td>
-                </tr>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-2.5 font-bold text-teal-400">MECH</td>
-                  <td className="p-2.5">1 Student</td>
-                  <td className="p-2.5 text-emerald-400 font-bold">7.00 LPA</td>
-                  <td className="p-2.5 text-amber-400 font-bold">7.00 LPA (L&T)</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      );
-
-    // 9. Tuning Manager Visual Outcome
-    case 'tuning':
-      return (
-        <div className="bg-slate-950 border border-amber-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-amber-400" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">
-                Visual Outcome: Before vs After Indexing Latency
-              </span>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              🚀 4.0x Speedup (74.8% Faster)
-            </span>
-          </div>
-
-          {/* Visual Latency Bars */}
-          <div className="space-y-3 font-mono text-xs">
-            <div>
-              <div className="flex justify-between text-slate-400 text-[11px] mb-1">
-                <span>Before Optimization: Full Table Scan (60 Blocks)</span>
-                <span className="text-red-400 font-bold">48.5 ms</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  Unstructured student data arrives. Anyone could try to edit student examination grades.
+                </p>
               </div>
-              <div className="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-800">
-                <div className="bg-red-500 h-full w-[90%]"></div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Organizes columns, primary keys, and checks user security roles (Admin vs Guest).
+                </p>
               </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-slate-300 text-[11px] mb-1">
-                <span className="text-emerald-400 font-bold">After Bitmap Index: Direct Tuple Lookup</span>
-                <span className="text-emerald-400 font-bold">12.2 ms</span>
-              </div>
-              <div className="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-800">
-                <div className="bg-emerald-500 h-full w-[23%]"></div>
+              <div className="p-3 bg-blue-950/60 rounded-xl border border-blue-500/40 space-y-1">
+                <span className="text-blue-300 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  Admins can update marks, but guest users are strictly blocked from tampering with records.
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 text-center">
-            Optimizer switched access path from <strong>Full Table Scan</strong> to <strong>Bitmap Index Scan</strong>.
-          </div>
-        </div>
-      );
-
-    // 10. Testing Manager Visual Outcome
-    case 'testing':
-      return (
-        <div className="bg-slate-950 border border-emerald-500/40 rounded-2xl p-5 space-y-4 animate-in fade-in zoom-in-95">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <CheckCheck className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
-                Visual Outcome: Automated Data Quality Audit Certificate
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                Active Database Table Record Counts Chart
               </span>
+              <span className="text-emerald-400">Strict RBAC Enforced</span>
             </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-              Audit Status: 100% PASSED
-            </span>
-          </div>
-
-          {/* 5-Test Visual Badges */}
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-center text-xs font-mono">
-            <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/30 space-y-1">
-              <span className="text-[10px] text-slate-400 block">Test 1: Reconcile</span>
-              <span className="text-emerald-300 font-bold">60 / 60</span>
-              <div className="text-[10px] text-emerald-400">100% Matched ✅</div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={tableSizesChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="table" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                    formatter={(val: any) => [`${val} Records`, 'Table Rows']}
+                  />
+                  <Bar dataKey="rows" radius={[6, 6, 0, 0]}>
+                    {tableSizesChart.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-            <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/30 space-y-1">
-              <span className="text-[10px] text-slate-400 block">Test 2: Uniqueness</span>
-              <span className="text-emerald-300 font-bold">0 Dupes</span>
-              <div className="text-[10px] text-emerald-400">PK Verified ✅</div>
-            </div>
-            <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/30 space-y-1">
-              <span className="text-[10px] text-slate-400 block">Test 3: Null Audit</span>
-              <span className="text-emerald-300 font-bold">0 Nulls</span>
-              <div className="text-[10px] text-emerald-400">Mandatory OK ✅</div>
-            </div>
-            <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/30 space-y-1">
-              <span className="text-[10px] text-slate-400 block">Test 4: Foreign Key</span>
-              <span className="text-emerald-300 font-bold">0 Orphans</span>
-              <div className="text-[10px] text-emerald-400">Integrity OK ✅</div>
-            </div>
-            <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/30 space-y-1">
-              <span className="text-[10px] text-slate-400 block">Test 5: Domain Range</span>
-              <span className="text-emerald-300 font-bold">CGPA 0-10</span>
-              <div className="text-[10px] text-emerald-400">In Range ✅</div>
-            </div>
-          </div>
-
-          <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-emerald-300 text-center font-bold">
-            All 5 data quality assertions verified. Zero data anomalies present in the warehouse.
           </div>
         </div>
       );
+    }
+
+    // -------------------------------------------------------------
+    // Manager 5: System Backup Recovery Manager
+    // -------------------------------------------------------------
+    case 'backup': {
+      const recoveryChart = [
+        { state: '1. Before Crash', dataAvailablePct: 100, fill: '#10b981' },
+        { state: '2. During Crash', dataAvailablePct: 0, fill: '#ef4444' },
+        { state: '3. Restored State', dataAvailablePct: 100, fill: '#38bdf8' },
+      ];
+
+      return (
+        <div className="bg-slate-950 border border-teal-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-teal-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  All college student marks and attendance are live in the working database.
+                </p>
+              </div>
+              <div className="p-3 bg-teal-950/60 rounded-xl border border-teal-500/40 space-y-1">
+                <span className="text-teal-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Freezes a safety backup copy (snapshot). If the server crashes, reloads that saved snapshot.
+                </p>
+              </div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-400 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  Even after a server crash, <strong>100% of student records are restored</strong> in under 2 seconds.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <LifeBuoy className="w-4 h-4 text-teal-400" />
+                Disaster Recovery Timeline Chart: Data Availability (%)
+              </span>
+              <span className="text-teal-300">0 Minutes Lost</span>
+            </div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={recoveryChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="state" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} unit="%" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                    formatter={(val: any) => [`${val}% Data Accessible`, 'Status']}
+                  />
+                  <Bar dataKey="dataAvailablePct" radius={[6, 6, 0, 0]}>
+                    {recoveryChart.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // -------------------------------------------------------------
+    // Manager 6: Load Manager (ETL)
+    // -------------------------------------------------------------
+    case 'load': {
+      const etlChart = [
+        { stage: '1. Raw Read In', records: 7, fill: '#38bdf8' },
+        { stage: '2. Clean Loaded', records: 6, fill: '#10b981' },
+        { stage: '3. Duplicate Rejected', records: 1, fill: '#ef4444' },
+      ];
+
+      return (
+        <div className="bg-slate-950 border border-blue-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  Raw CSV file arrives from department with typos ("cse" in lowercase) and a duplicate student scan.
+                </p>
+              </div>
+              <div className="p-3 bg-blue-950/60 rounded-xl border border-blue-500/40 space-y-1">
+                <span className="text-blue-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Normalizes names to "CSE", catches the duplicate ID, and filters it into an error quarantine box.
+                </p>
+              </div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-400 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  Only 100% clean rows enter <strong>Fact_Attendance</strong>. Garbage data is rejected.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                ETL Data Cleaning Pipeline Chart (Records In vs Clean Loaded)
+              </span>
+              <span className="text-emerald-400">Pristine Warehouse</span>
+            </div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={etlChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="stage" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                    formatter={(val: any) => [`${val} Records`, 'Count']}
+                  />
+                  <Bar dataKey="records" radius={[6, 6, 0, 0]}>
+                    {etlChart.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // -------------------------------------------------------------
+    // Manager 7: Warehouse Manager
+    // -------------------------------------------------------------
+    case 'warehouse': {
+      const partitionChart = [
+        { method: 'Without Partitions (Whole History)', diskScannedPct: 100, fill: '#ef4444' },
+        { method: 'With Year Partitions (Only 2024)', diskScannedPct: 25, fill: '#10b981' },
+      ];
+
+      return (
+        <div className="bg-slate-950 border border-indigo-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  Unorganized flat attendance records from 4 different academic years all mixed together.
+                </p>
+              </div>
+              <div className="p-3 bg-indigo-950/60 rounded-xl border border-indigo-500/40 space-y-1">
+                <span className="text-indigo-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Connects tables into a <strong>Star Schema</strong> and divides data into <strong>Academic Year partitions</strong>.
+                </p>
+              </div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-400 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  When searching for 2024 records, the system skips 2021, 2022, and 2023 partitions completely!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <Boxes className="w-4 h-4 text-indigo-400" />
+                Partition Pruning Chart: Physical Disk Scanned (%)
+              </span>
+              <span className="text-emerald-400">75% Disk Work Saved</span>
+            </div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={partitionChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="method" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} unit="%" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                    formatter={(val: any) => [`${val}% Physical Disk Scanned`, 'Disk I/O']}
+                  />
+                  <Bar dataKey="diskScannedPct" radius={[6, 6, 0, 0]}>
+                    {partitionChart.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // -------------------------------------------------------------
+    // Manager 8: Query Manager
+    // -------------------------------------------------------------
+    case 'query': {
+      const placementChart = [
+        { dept: 'CSE', avgSalaryLpa: 13.5, offers: 11, fill: '#3b82f6' },
+        { dept: 'IT', avgSalaryLpa: 16.5, offers: 2, fill: '#a855f7' },
+        { dept: 'ECE', avgSalaryLpa: 11.9, offers: 4, fill: '#10b981' },
+        { dept: 'MECH', avgSalaryLpa: 7.0, offers: 1, fill: '#f59e0b' },
+      ];
+
+      return (
+        <div className="bg-slate-950 border border-sky-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-sky-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  College Principal asks: <em>"Which engineering branch has the highest placement package?"</em>
+                </p>
+              </div>
+              <div className="p-3 bg-sky-950/60 rounded-xl border border-sky-500/40 space-y-1">
+                <span className="text-sky-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Parses the SQL statement, scans <strong>Fact_Placement</strong>, and calculates average packages.
+                </p>
+              </div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-400 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  Generates the complete summary chart in <strong>14.2 milliseconds</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <Terminal className="w-4 h-4 text-sky-400" />
+                Query Results Chart: Average Placement Package by Department (LPA)
+              </span>
+              <span className="text-sky-300">Fast 14 ms</span>
+            </div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={placementChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="dept" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} unit=" LPA" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                    formatter={(val: any) => [`${val} Lakhs / Year`, 'Avg Salary']}
+                  />
+                  <Bar dataKey="avgSalaryLpa" radius={[6, 6, 0, 0]}>
+                    {placementChart.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // -------------------------------------------------------------
+    // Manager 9: Tuning Manager
+    // -------------------------------------------------------------
+    case 'tuning': {
+      const speedChart = [
+        { type: 'Without Index (Full Table Scan)', timeMs: 48.5, fill: '#ef4444' },
+        { type: 'With Bitmap Index (Index Scan)', timeMs: 12.2, fill: '#10b981' },
+      ];
+
+      return (
+        <div className="bg-slate-950 border border-amber-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  Filtering by department checks every single student row from beginning to end (Full Table Scan).
+                </p>
+              </div>
+              <div className="p-3 bg-amber-950/60 rounded-xl border border-amber-500/40 space-y-1">
+                <span className="text-amber-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Builds a <strong>Bitmap Index</strong> (like an index at the back of a textbook).
+                </p>
+              </div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-400 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  The query jumps directly to the matching CSE rows. <strong>4.0x faster search speed</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <Zap className="w-4 h-4 text-amber-400" />
+                Query Speed Comparison Chart: Execution Time (Milliseconds)
+              </span>
+              <span className="text-emerald-400">74.8% Faster</span>
+            </div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={speedChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="type" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} unit=" ms" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                    formatter={(val: any) => [`${val} ms`, 'Search Time']}
+                  />
+                  <Bar dataKey="timeMs" radius={[6, 6, 0, 0]}>
+                    {speedChart.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // -------------------------------------------------------------
+    // Manager 10: Testing Manager
+    // -------------------------------------------------------------
+    case 'testing': {
+      const testScoreChart = [
+        { testName: '1. Count Match', scorePct: 100, fill: '#10b981' },
+        { testName: '2. 0 Duplicates', scorePct: 100, fill: '#10b981' },
+        { testName: '3. 0 Null Fields', scorePct: 100, fill: '#10b981' },
+        { testName: '4. Valid Students', scorePct: 100, fill: '#10b981' },
+        { testName: '5. CGPA In Range', scorePct: 100, fill: '#10b981' },
+      ];
+
+      return (
+        <div className="bg-slate-950 border border-emerald-500/40 rounded-2xl p-5 space-y-5 animate-in fade-in">
+          {/* 1. DATA FLOW */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block font-mono">
+              🔄 Data Flow: How Information Moves Through This Manager
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-amber-400 font-bold block">1. Before Manager (Input)</span>
+                <p className="text-slate-300 text-[11px]">
+                  Data has been loaded into warehouse tables. We must confirm zero records were lost or corrupted.
+                </p>
+              </div>
+              <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 space-y-1">
+                <span className="text-emerald-300 font-bold block">2. Manager Action</span>
+                <p className="text-slate-200 text-[11px]">
+                  Runs 5 automated quality checks: compares source count, checks duplicate IDs, and verifies CGPAs.
+                </p>
+              </div>
+              <div className="p-3 bg-blue-950/60 rounded-xl border border-blue-500/40 space-y-1">
+                <span className="text-blue-300 font-bold block">3. After Manager (Output)</span>
+                <p className="text-slate-200 text-[11px]">
+                  <strong>100% Quality Certificate verified</strong>: Management reports are guaranteed accurate.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. VISUAL CHART */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-slate-200 flex items-center gap-1.5">
+                <CheckCheck className="w-4 h-4 text-emerald-400" />
+                Data Quality Test Pass Rate Chart (5 of 5 Tests Passed)
+              </span>
+              <span className="text-emerald-400">100% Verified</span>
+            </div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={testScoreChart} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="testName" stroke="#94a3b8" fontSize={10} />
+                  <YAxis stroke="#94a3b8" fontSize={11} unit="%" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+                    formatter={(val: any) => [`${val}% Pass Score`, 'Result']}
+                  />
+                  <Bar dataKey="scorePct" radius={[6, 6, 0, 0]}>
+                    {testScoreChart.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     default:
       return null;
