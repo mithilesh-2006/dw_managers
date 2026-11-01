@@ -80,11 +80,11 @@ export const HomePage: React.FC = () => {
                 <span>Classroom Presentation Ready</span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-white">
-                Projector Mode with Speaker Notes & Live Auto-Simulation
+                Projector Mode with Split Layout & Interactive Simulations
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
-                Features keyboard slide navigation (Arrow keys), real-time speaker notes script with student analogies,
-                animated 3-stage flows (Input $\rightarrow$ Process $\rightarrow$ Output), and Recharts charts.
+                Features keyboard slide navigation (Arrow keys), educational content on the left,
+                interactive 3-stage animated flows (Input → Process → Output) on the right, and visual Recharts charts.
               </p>
             </div>
             <Link

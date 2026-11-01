@@ -9,16 +9,13 @@ import {
   Maximize2,
   Minimize2,
   RotateCcw,
-  Sparkles,
   CheckCircle2,
   Play,
   ArrowRight,
   Lightbulb,
   BookOpen,
   Home,
-  Layers,
   GraduationCap,
-  MessageSquare,
   Clock,
   HardDriveDownload,
   Boxes,
@@ -55,8 +52,6 @@ export const PresentationModeView: React.FC = () => {
 
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showSpeakerNotes, setShowSpeakerNotes] = useState(false);
-  const [autoRunDemo, setAutoRunDemo] = useState(true);
 
   // Total slides: 0 (Intro), 1-10 (Managers), 11 (Big Picture), 12 (Summary)
   const TOTAL_SLIDES = 13;
@@ -93,9 +88,6 @@ export const PresentationModeView: React.FC = () => {
       } else if (e.key === 'f' || e.key === 'F') {
         e.preventDefault();
         toggleFullscreen();
-      } else if (e.key === 'n' || e.key === 'N') {
-        e.preventDefault();
-        setShowSpeakerNotes((prev) => !prev);
       } else if (e.key === 'Escape') {
         if (!document.fullscreenElement) {
           navigate('/');
@@ -174,34 +166,6 @@ export const PresentationModeView: React.FC = () => {
 
         {/* Top Control Action Buttons */}
         <div className="flex items-center space-x-2">
-          {/* Speaker Notes Toggle */}
-          <button
-            onClick={() => setShowSpeakerNotes((prev) => !prev)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 border ${
-              showSpeakerNotes
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50'
-                : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
-            }`}
-            title="Toggle Speaker Presentation Script (N)"
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Speaker Notes</span>
-          </button>
-
-          {/* Auto-Demo Toggle */}
-          <button
-            onClick={() => setAutoRunDemo((prev) => !prev)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 border ${
-              autoRunDemo
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                : 'bg-slate-900 hover:bg-slate-800 text-slate-400 border-slate-800'
-            }`}
-            title="Toggle Auto-running simulation on slide change"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Auto-Simulation: {autoRunDemo ? 'ON' : 'OFF'}</span>
-          </button>
-
           {/* Fullscreen Toggle */}
           <button
             onClick={toggleFullscreen}
@@ -214,10 +178,10 @@ export const PresentationModeView: React.FC = () => {
           {/* Exit Button */}
           <Link
             to="/"
-            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-xl text-xs font-semibold transition flex items-center space-x-1"
+            className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5"
           >
             <Home className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Exit</span>
+            <span className="hidden sm:inline">Exit to Dashboard</span>
           </Link>
         </div>
       </div>
@@ -230,7 +194,6 @@ export const PresentationModeView: React.FC = () => {
           <SlideManager
             key={currentSlideIndex}
             managerNumber={currentSlideIndex}
-            autoRunDemo={autoRunDemo}
             onSystemAction={{
               updateServerConfig,
               scheduledJobs,
@@ -249,20 +212,6 @@ export const PresentationModeView: React.FC = () => {
         {currentSlideIndex === 12 && <SlideSummary onRestart={() => setCurrentSlideIndex(0)} />}
       </div>
 
-      {/* Collapsible Speaker Notes Drawer */}
-      {showSpeakerNotes && (
-        <div className="bg-slate-900 border-t border-amber-500/40 p-4 max-w-[1500px] mx-auto w-full animate-in slide-in-from-bottom">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-black uppercase tracking-wider text-amber-400 font-mono flex items-center gap-1.5">
-              <MessageSquare className="w-4 h-4" />
-              Speaker Notes • What to explain to the seminar audience
-            </span>
-            <span className="text-[11px] text-slate-400">Press 'N' to close</span>
-          </div>
-          <SpeakerNotesContent slideIndex={currentSlideIndex} />
-        </div>
-      )}
-
       {/* Bottom Presenter Navigation Bar */}
       <div className="bg-slate-900/95 border-t border-slate-800 px-6 py-3 flex items-center justify-between sticky bottom-0 z-30">
         <button
@@ -280,7 +229,7 @@ export const PresentationModeView: React.FC = () => {
           </span>
           <span className="text-slate-600 hidden sm:inline">•</span>
           <span className="text-xs text-slate-400 hidden sm:inline">
-            Content on <strong>LEFT</strong> • Live Simulation on <strong>RIGHT</strong>
+            Educational Content on <strong>LEFT</strong> • Click <strong>RUN LIVE SIMULATION</strong> on <strong>RIGHT</strong>
           </span>
         </div>
 
@@ -374,7 +323,6 @@ const SlideIntro: React.FC<{ onStart: () => void }> = ({ onStart }) => {
 /* -------------------------------------------------------------------------- */
 interface SlideManagerProps {
   managerNumber: number;
-  autoRunDemo: boolean;
   onSystemAction: any;
 }
 
@@ -406,7 +354,6 @@ const SYLLABUS_UNITS: Record<string, string> = {
 
 const SlideManager: React.FC<SlideManagerProps> = ({
   managerNumber,
-  autoRunDemo,
   onSystemAction,
 }) => {
   const managerId = MANAGERS_ORDER[managerNumber - 1];
@@ -445,7 +392,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
       setSimState('completed');
     }, 3700);
 
-    // Also trigger the central state update
+    // Trigger the central state update
     if (managerId === 'config') {
       onSystemAction.updateServerConfig?.({ storageAllocatedGb: 2048 });
     } else if (managerId === 'scheduling' && onSystemAction.scheduledJobs?.length > 0) {
@@ -467,16 +414,6 @@ const SlideManager: React.FC<SlideManagerProps> = ({
     setSimState('idle');
     setActiveStep(0);
   };
-
-  // Auto-run simulation on slide load if auto-demo is enabled
-  useEffect(() => {
-    if (autoRunDemo) {
-      const timer = setTimeout(() => {
-        runSimulation();
-      }, 350);
-      return () => clearTimeout(timer);
-    }
-  }, [autoRunDemo, runSimulation]);
 
   const isRunning = simState !== 'idle' && simState !== 'completed';
   const isCompleted = simState === 'completed';
@@ -1108,8 +1045,7 @@ const SlideBigPicture: React.FC = () => {
       {/* Summary Box */}
       <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 text-center text-xs text-slate-300">
         💡 <strong className="text-white">Anna University Exam Tip:</strong> When asked how managers interact, divide
-        your answer into these 4 stages: Resource Scheduling $\rightarrow$ ETL & Ingestion $\rightarrow$ Storage &
-        Backup $\rightarrow$ Querying & Quality Audit.
+        your answer into these 4 stages: Resource Scheduling → ETL & Ingestion → Storage & Backup → Querying & Quality Audit.
       </div>
     </div>
   );
@@ -1183,94 +1119,6 @@ const SlideSummary: React.FC<{ onRestart: () => void }> = ({ onRestart }) => {
           <Home className="w-4 h-4" />
           <span>Return to Visualizer Dashboard</span>
         </Link>
-      </div>
-    </div>
-  );
-};
-
-/* -------------------------------------------------------------------------- */
-/* SPEAKER NOTES SCRIPT COMPONENT                                             */
-/* -------------------------------------------------------------------------- */
-const SpeakerNotesContent: React.FC<{ slideIndex: number }> = ({ slideIndex }) => {
-  const notes = [
-    {
-      title: 'Introduction Slide',
-      sayThis: 'Introduce the seminar topic: Data Warehousing System and Process Management under Unit IV of Anna University R2021. Explain that we are using a real college case study (PSG iTech) to demonstrate how all 10 managers work together.',
-      analogy: 'A Data Warehouse is like an airport control tower — without proper traffic controllers, flights (data) will collide or crash.',
-    },
-    {
-      title: 'Manager 1: System Configuration Manager',
-      sayThis: 'Point to the LEFT side: explain that storage was nearly exhausted at 716 GB free. Point to the RIGHT side: click Run Simulation to watch the storage expand to 2048 GB with 1228 GB free storage in the comparison chart.',
-      analogy: 'Like upgrading from a 64 GB phone to a 256 GB phone so 4K video recording does not crash halfway through.',
-    },
-    {
-      title: 'Manager 2: System Scheduling Manager',
-      sayThis: 'Point to the LEFT: explain that daytime manual uploads lock tables. On the RIGHT: watch the simulation schedule the job at 11:30 PM midnight with 0% impact on daytime users.',
-      analogy: 'Like scheduling an iOS or Android update to install automatically at 2:00 AM while you are asleep.',
-    },
-    {
-      title: 'Manager 3: System Event Manager',
-      sayThis: 'Point to the LEFT: discuss silent failures when scripts crash. On the RIGHT: watch the event manager capture the error signal, label it ERROR severity, and alert the administrator.',
-      analogy: 'The black-box flight recorder and alarm bell of the warehouse.',
-    },
-    {
-      title: 'Manager 4: System Database Manager',
-      sayThis: 'Point to the LEFT: discuss RBAC. On the RIGHT: watch the simulation permit the Admin write request while denying and blocking the Guest user tampering with exam marks.',
-      analogy: 'Security keycards in an office: only managers can enter the vault; visitors have zero write access.',
-    },
-    {
-      title: 'Manager 5: System Backup Recovery Manager',
-      sayThis: 'Point to the LEFT: discuss hardware crashes. On the RIGHT: watch the disaster timeline drop to 0% during crash, then immediately restore back to 100% after mounting snapshot BAK-001.',
-      analogy: 'A Time Machine or iCloud backup for your smartphone.',
-    },
-    {
-      title: 'Manager 6: Load Manager (ETL Pipeline)',
-      sayThis: 'Point to the LEFT: raw attendance files arrive with duplicate scans. On the RIGHT: watch the 3-step ETL pipeline extract 7 rows, quarantine 1 duplicate, and load 6 clean rows.',
-      analogy: 'An oil refinery taking crude oil and removing impurities before delivering clean petrol.',
-    },
-    {
-      title: 'Manager 7: Warehouse Manager (Dimensional Modeling)',
-      sayThis: 'Point to the LEFT: mixed historical years are slow to scan. On the RIGHT: watch the Star Schema mount year partitions, pruning 75% of disk reads.',
-      analogy: 'Filing student records into 4 labeled folders (2021, 2022, 2023, 2024) instead of dumping them all into one giant heap.',
-    },
-    {
-      title: 'Manager 8: Query Manager (Analytical SQL)',
-      sayThis: 'Point to the LEFT: the Principal needs placement salary averages. On the RIGHT: watch the SQL engine parse and calculate department averages (IT 16.5 LPA, CSE 13.5 LPA) in 14 milliseconds.',
-      analogy: 'Google search for your data warehouse: parses the question, groups results, and calculates averages instantly.',
-    },
-    {
-      title: 'Manager 9: Tuning Manager (Indexing)',
-      sayThis: 'Point to the LEFT: Full Table Scans take 48.5 ms. On the RIGHT: watch the Bitmap Index build, accelerating the query down to 12.2 ms (4x faster).',
-      analogy: 'The index at the back of a 500-page textbook: jumping straight to page 142 instead of reading every page from page 1.',
-    },
-    {
-      title: 'Manager 10: Testing Manager (Quality Audit)',
-      sayThis: 'Point to the LEFT: 60 students in source ERP but only 52 in the warehouse. On the RIGHT: watch Testing Manager pinpoint the 8 missing IDs and verify all 5 quality tests at 100%.',
-      analogy: 'Quality control inspector at an automobile factory inspecting every car before it leaves the assembly line.',
-    },
-    {
-      title: 'End-to-End Grand Architecture',
-      sayThis: 'Walk through the 4 phases: Scheduling triggers at 11:30 PM -> Config prepares buffer -> Load extracts and cleans -> Database checks RBAC -> Warehouse partitions -> Backup snapshots -> Testing verifies -> Tuning accelerates -> Query serves Dean.',
-      analogy: 'A well-rehearsed symphony orchestra where every musician plays their part in harmony.',
-    },
-    {
-      title: 'Conclusion & Summary',
-      sayThis: 'Summarize the core exam distinction: System Management handles infrastructure and security; Process Management handles ETL, modeling, and queries.',
-      analogy: 'Hardware vs Software in computer systems.',
-    },
-  ];
-
-  const note = notes[slideIndex] || notes[0];
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-      <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-        <span className="text-blue-400 font-bold block mb-1">🗣️ What to Say to the Audience:</span>
-        <p className="text-slate-300 leading-relaxed font-sans">{note.sayThis}</p>
-      </div>
-      <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-        <span className="text-amber-400 font-bold block mb-1">💡 Real-World Analogy to Use:</span>
-        <p className="text-slate-300 leading-relaxed font-sans">{note.analogy}</p>
       </div>
     </div>
   );
