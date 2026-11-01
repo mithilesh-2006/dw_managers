@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSimulation } from '../context/SimulationContext';
-import { VisualOutcomeCard } from '../components/presentation/VisualOutcomeCard';
+import { MANAGERS_DATA, ManagerScenario } from '../data/visualizerData';
 import {
   Presentation,
   ChevronLeft,
@@ -11,16 +11,6 @@ import {
   RotateCcw,
   Sparkles,
   CheckCircle2,
-  Cpu,
-  CalendarClock,
-  BellRing,
-  Database,
-  LifeBuoy,
-  HardDriveDownload,
-  Boxes,
-  Terminal,
-  Zap,
-  CheckCheck,
   Play,
   ArrowRight,
   Lightbulb,
@@ -29,12 +19,26 @@ import {
   Layers,
   GraduationCap,
   MessageSquare,
-  HelpCircle,
   Clock,
+  HardDriveDownload,
+  Boxes,
+  Zap,
   Activity,
-  Workflow,
-  ShieldCheck,
+  AlertTriangle,
+  HelpCircle,
+  Database,
 } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Cell,
+  CartesianGrid,
+  Legend,
+} from 'recharts';
 
 export const PresentationModeView: React.FC = () => {
   const navigate = useNavigate();
@@ -50,17 +54,11 @@ export const PresentationModeView: React.FC = () => {
   } = useSimulation();
 
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [simulationRan, setSimulationRan] = useState(false);
-  const [simulationOutput, setSimulationOutput] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSpeakerNotes, setShowSpeakerNotes] = useState(false);
   const [autoRunDemo, setAutoRunDemo] = useState(true);
 
-  // Define total slides:
-  // 0: Seminar Title & Agenda
-  // 1-10: The 10 Managers
-  // 11: End-to-End Grand Architecture (All 10 Working Together)
-  // 12: Seminar Conclusion & Q&A
+  // Total slides: 0 (Intro), 1-10 (Managers), 11 (Big Picture), 12 (Summary)
   const TOTAL_SLIDES = 13;
 
   const toggleFullscreen = () => {
@@ -74,55 +72,16 @@ export const PresentationModeView: React.FC = () => {
   const handleNext = useCallback(() => {
     if (currentSlideIndex < TOTAL_SLIDES - 1) {
       setCurrentSlideIndex((prev) => prev + 1);
-      setSimulationRan(false);
-      setSimulationOutput(null);
     }
   }, [currentSlideIndex, TOTAL_SLIDES]);
 
   const handlePrev = useCallback(() => {
     if (currentSlideIndex > 0) {
       setCurrentSlideIndex((prev) => prev - 1);
-      setSimulationRan(false);
-      setSimulationOutput(null);
     }
   }, [currentSlideIndex]);
 
-  const runManagerSimulation = useCallback(async (managerId: string) => {
-    setSimulationRan(true);
-
-    if (managerId === 'config') {
-      updateServerConfig({ storageAllocatedGb: 2048 });
-      setSimulationOutput('SAN Storage expanded to 2048 GB (+512 GB). Free space increased to 1228 GB.');
-    } else if (managerId === 'scheduling') {
-      if (scheduledJobs.length > 0) {
-        await runJobManually(scheduledJobs[0].id);
-      }
-      setSimulationOutput('Midnight cron job fired at 23:30. 60 attendance records committed with 0% daytime slowdown.');
-    } else if (managerId === 'event') {
-      setSimulationOutput('Failure captured in audit log: Event EVT-BATCH-ERR classified as ERROR with alert sent to admin.');
-    } else if (managerId === 'database') {
-      setSimulationOutput('RBAC verified: Admin granted write access; Guest write request blocked with Permission Denied.');
-    } else if (managerId === 'backup') {
-      const snap = createBackup('Seminar Presentation Snapshot');
-      setSimulationOutput(`Golden snapshot ${snap.id} frozen with ${snap.recordCount} records. Disaster Recovery ready.`);
-    } else if (managerId === 'load') {
-      const res = runETL('attendance_batch_valid');
-      setSimulationOutput(`ETL complete: 7 raw records extracted, 6 clean records loaded, 1 duplicate quarantined.`);
-    } else if (managerId === 'warehouse') {
-      setSimulationOutput('Star Schema initialized with 4 Year Partitions. Partition pruning eliminates 75% of disk reads.');
-    } else if (managerId === 'query') {
-      const q = executeQuery('SELECT department_id, COUNT(*) as offers, ROUND(AVG(package_lpa), 2) as avg_pkg FROM Fact_Placement GROUP BY department_id');
-      setSimulationOutput(`Analytics SQL executed in ${q.executionTimeMs} ms: Department placement statistics returned to Principal.`);
-    } else if (managerId === 'tuning') {
-      createIndex('Dim_Student', 'department_id', 'Bitmap');
-      setSimulationOutput('Bitmap Index active on department_id: Query benchmark accelerated from 48.5 ms to 12.2 ms (4x faster).');
-    } else if (managerId === 'testing') {
-      const tests = runDataQualityTests();
-      setSimulationOutput(`Quality audit passed: ${tests.filter((t: any) => t.status === 'PASS').length} of ${tests.length} tests verified.`);
-    }
-  }, [createBackup, createIndex, executeQuery, runDataQualityTests, runETL, runJobManually, scheduledJobs, updateServerConfig]);
-
-  // Keyboard navigation for presentation
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight' || e.key === 'PageDown') {
@@ -137,13 +96,6 @@ export const PresentationModeView: React.FC = () => {
       } else if (e.key === 'n' || e.key === 'N') {
         e.preventDefault();
         setShowSpeakerNotes((prev) => !prev);
-      } else if (e.key === 'd' || e.key === 'D' || e.key === 'Enter') {
-        // Run demo simulation if on a manager slide
-        if (currentSlideIndex >= 1 && currentSlideIndex <= 10) {
-          e.preventDefault();
-          const managerIds = ['config', 'scheduling', 'event', 'database', 'backup', 'load', 'warehouse', 'query', 'tuning', 'testing'];
-          runManagerSimulation(managerIds[currentSlideIndex - 1]);
-        }
       } else if (e.key === 'Escape') {
         if (!document.fullscreenElement) {
           navigate('/');
@@ -153,18 +105,7 @@ export const PresentationModeView: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentSlideIndex, handleNext, handlePrev, navigate, runManagerSimulation]);
-
-  // Auto-run simulation when switching to a manager slide if enabled
-  useEffect(() => {
-    if (autoRunDemo && currentSlideIndex >= 1 && currentSlideIndex <= 10) {
-      const timer = setTimeout(() => {
-        const managerIds = ['config', 'scheduling', 'event', 'database', 'backup', 'load', 'warehouse', 'query', 'tuning', 'testing'];
-        runManagerSimulation(managerIds[currentSlideIndex - 1]);
-      }, 400);
-      return () => clearTimeout(timer);
-    }
-  }, [currentSlideIndex, autoRunDemo, runManagerSimulation]);
+  }, [handleNext, handlePrev, navigate]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between select-none">
@@ -184,12 +125,12 @@ export const PresentationModeView: React.FC = () => {
               </span>
             </div>
             <h1 className="text-sm sm:text-base font-extrabold text-white tracking-tight">
-              DW Control Center: 10 Managers Visualizer Demo
+              DW Control Center: Presentation Demo
             </h1>
           </div>
         </div>
 
-        {/* Slide navigation quick jump pills */}
+        {/* Slide quick jump pills */}
         <div className="hidden xl:flex items-center space-x-1 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
           <button
             onClick={() => setCurrentSlideIndex(0)}
@@ -258,7 +199,7 @@ export const PresentationModeView: React.FC = () => {
             title="Toggle Auto-running simulation on slide change"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Auto-Demo: {autoRunDemo ? 'ON' : 'OFF'}</span>
+            <span className="hidden sm:inline">Auto-Simulation: {autoRunDemo ? 'ON' : 'OFF'}</span>
           </button>
 
           {/* Fullscreen Toggle */}
@@ -282,15 +223,24 @@ export const PresentationModeView: React.FC = () => {
       </div>
 
       {/* Main Slide Body */}
-      <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-6 flex flex-col justify-center">
+      <div className="flex-1 max-w-[1500px] mx-auto w-full px-4 sm:px-6 py-5 flex flex-col justify-center">
         {currentSlideIndex === 0 && <SlideIntro onStart={() => setCurrentSlideIndex(1)} />}
 
         {currentSlideIndex >= 1 && currentSlideIndex <= 10 && (
           <SlideManager
+            key={currentSlideIndex}
             managerNumber={currentSlideIndex}
-            simulationRan={simulationRan}
-            simulationOutput={simulationOutput}
-            onRunSimulation={runManagerSimulation}
+            autoRunDemo={autoRunDemo}
+            onSystemAction={{
+              updateServerConfig,
+              scheduledJobs,
+              runJobManually,
+              runETL,
+              createBackup,
+              executeQuery,
+              createIndex,
+              runDataQualityTests,
+            }}
           />
         )}
 
@@ -301,7 +251,7 @@ export const PresentationModeView: React.FC = () => {
 
       {/* Collapsible Speaker Notes Drawer */}
       {showSpeakerNotes && (
-        <div className="bg-slate-900 border-t border-amber-500/40 p-4 max-w-7xl mx-auto w-full animate-in slide-in-from-bottom">
+        <div className="bg-slate-900 border-t border-amber-500/40 p-4 max-w-[1500px] mx-auto w-full animate-in slide-in-from-bottom">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-black uppercase tracking-wider text-amber-400 font-mono flex items-center gap-1.5">
               <MessageSquare className="w-4 h-4" />
@@ -330,9 +280,7 @@ export const PresentationModeView: React.FC = () => {
           </span>
           <span className="text-slate-600 hidden sm:inline">•</span>
           <span className="text-xs text-slate-400 hidden sm:inline">
-            Use <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-[10px] font-mono">←</kbd>{' '}
-            <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-[10px] font-mono">→</kbd> keys
-            to navigate
+            Content on <strong>LEFT</strong> • Live Simulation on <strong>RIGHT</strong>
           </span>
         </div>
 
@@ -422,254 +370,634 @@ const SlideIntro: React.FC<{ onStart: () => void }> = ({ onStart }) => {
 };
 
 /* -------------------------------------------------------------------------- */
-/* SLIDES 1-10: INDIVIDUAL MANAGER DEMO SLIDE                                 */
+/* SLIDES 1-10: INDIVIDUAL MANAGER SLIDE (LEFT: CONTENT, RIGHT: SIMULATION)   */
 /* -------------------------------------------------------------------------- */
 interface SlideManagerProps {
   managerNumber: number;
-  simulationRan: boolean;
-  simulationOutput: string | null;
-  onRunSimulation: (id: string) => void;
+  autoRunDemo: boolean;
+  onSystemAction: any;
 }
 
-const MANAGERS_META = [
-  {
-    id: 'config',
-    number: 1,
-    name: 'System Configuration Manager',
-    category: 'System Management',
-    icon: Cpu,
-    problem: 'Storage and memory limits are almost exhausted. Incoming batches of student records risk out-of-disk crashes.',
-    whyRequired: 'Dynamically manages server storage limits, RAM buffer cache, and prevents catastrophic disk-full errors.',
-    solution: 'Allocate +512 GB from enterprise SAN storage, expanding allocation to 2048 GB with 16 GB buffer memory.',
-    actionName: 'Expand Storage Allocation to 2048 GB',
-    annaUnivUnit: 'Unit IV: System Management - Configuration & Resource Allocation',
-    takeaway: 'The hardware controller guaranteeing the warehouse never runs out of disk or memory.',
-  },
-  {
-    id: 'scheduling',
-    number: 2,
-    name: 'System Scheduling Manager',
-    category: 'System Management',
-    icon: CalendarClock,
-    problem: 'Manual biometric uploads during working hours lock database tables, slowing down staff and college users.',
-    whyRequired: 'Orchestrates batch workflows to execute automatically during off-peak midnight windows (23:30).',
-    solution: 'Schedule automated midnight cron jobs so heavy data ingestion runs with 0% daytime impact.',
-    actionName: 'Trigger Midnight Attendance Job',
-    annaUnivUnit: 'Unit IV: Process Management - Scheduling Batch Processing & Maintenance',
-    takeaway: 'The automated alarm clock ensuring heavy ingestion runs during off-peak hours.',
-  },
-  {
-    id: 'event',
-    number: 3,
-    name: 'System Event Manager',
-    category: 'System Management',
-    icon: BellRing,
-    problem: 'A background data loading task fails silently at 2:00 AM, resulting in empty reports for the Dean.',
-    whyRequired: 'Captures every warning, failure, or security breach in real time and immediately alerts the administrator.',
-    solution: 'Log event in audit trail, classify severity (Error), and send instant alert with prescribed remediation.',
-    actionName: 'Simulate Telemetry Failure Detection',
-    annaUnivUnit: 'Unit IV: System Administration - Event Logging, Alerting & Audit Trails',
-    takeaway: 'The black-box flight recorder keeping administrators aware of every system error.',
-  },
-  {
-    id: 'database',
-    number: 4,
-    name: 'System Database Manager',
-    category: 'System Management',
-    icon: Database,
-    problem: 'Unauthorized users attempt to modify or delete student examination records directly in tables.',
-    whyRequired: 'Enforces table columns, data dictionaries, and strict Role-Based Access Control (RBAC) permissions.',
-    solution: 'Grant full write access to DB_ADMIN while strictly blocking Guest and Analyst write requests.',
-    actionName: 'Enforce RBAC Access Boundaries',
-    annaUnivUnit: 'Unit IV: Data Warehouse Administration - Database Security & Schemas',
-    takeaway: 'The security gatekeeper protecting table structures and enforcing access rights.',
-  },
-  {
-    id: 'backup',
-    number: 5,
-    name: 'System Backup Recovery Manager',
-    category: 'System Management',
-    icon: LifeBuoy,
-    problem: 'A catastrophic server crash strikes the campus hardware, taking all student marks offline.',
-    whyRequired: 'Takes point-in-time snapshot freezes and re-hydrates the entire database with zero data loss.',
-    solution: 'Mount clean golden snapshot BAK-001 and restore all tables back to 100% operational state.',
-    actionName: 'Capture & Restore Golden Snapshot',
-    annaUnivUnit: 'Unit IV: System Management - Backup Strategies & Disaster Recovery',
-    takeaway: 'The life insurance policy of the data warehouse that reverses server crashes.',
-  },
-  {
-    id: 'load',
-    number: 6,
-    name: 'Load Manager (ETL Pipeline)',
-    category: 'Process Management',
-    icon: HardDriveDownload,
-    problem: 'Raw attendance CSV files contain duplicate student scans, formatting typos, and corrupted entries.',
-    whyRequired: 'Executes the core ETL pipeline: Extract from files, Transform & clean duplicates, and Load clean rows.',
-    solution: 'Clean 7 raw records: quarantine 1 duplicate student ID and load 6 valid records into Fact_Attendance.',
-    actionName: 'Run Extract, Cleanse & Load (ETL)',
-    annaUnivUnit: 'Unit II & IV: ETL Architecture - Extraction, Transformation, Cleansing and Loading',
-    takeaway: 'The refinery that cleans raw, messy spreadsheets into clean warehouse facts.',
-  },
-  {
-    id: 'warehouse',
-    number: 7,
-    name: 'Warehouse Manager (Star Schema)',
-    category: 'Process Management',
-    icon: Boxes,
-    problem: 'Historical attendance records from multiple years are unorganized, making historical searches slow.',
-    whyRequired: 'Designs Star Schemas (Facts & Dimensions) and divides large tables into academic year partitions.',
-    solution: 'Link Fact_Attendance with Dim_Student and enable year partitions (skipping 75% irrelevant data).',
-    actionName: 'Mount Year Partitions & Star Schema',
-    annaUnivUnit: 'Unit I & IV: Dimensional Modeling - Star Schema & Table Partitioning',
-    takeaway: 'The architect arranging numbers into Star Schemas and year partitions.',
-  },
-  {
-    id: 'query',
-    number: 8,
-    name: 'Query Manager (Analytical SQL)',
-    category: 'Process Management',
-    icon: Terminal,
-    problem: 'The college Principal needs department-wise average placement salaries calculated instantly.',
-    whyRequired: 'Parses complex SQL statements, executes in-memory aggregations, and returns sub-second summaries.',
-    solution: 'Execute SELECT department_id, AVG(package_lpa)... returning IT, CSE, ECE, MECH averages in 14 ms.',
-    actionName: 'Execute Analytical SQL Aggregation',
-    annaUnivUnit: 'Unit IV: Process Management - Query Management, Parsing & Execution',
-    takeaway: 'The search engine translating analytical questions into instant executive reports.',
-  },
-  {
-    id: 'tuning',
-    number: 9,
-    name: 'Tuning Manager (Indexing)',
-    category: 'Process Management',
-    icon: Zap,
-    problem: 'A filter query takes 48.5 ms because the database performs an expensive Full Table Scan across all disk pages.',
-    whyRequired: 'Identifies performance bottlenecks and constructs Bitmap and B-Tree indexes for fast pointer lookups.',
-    solution: 'Build Bitmap Index on department_id, dropping execution time from 48.5 ms down to 12.2 ms (4x faster).',
-    actionName: 'Construct Bitmap Index & Benchmark',
-    annaUnivUnit: 'Unit IV: Tuning & Testing - Bitmap & B-Tree Indexing Strategies',
-    takeaway: 'The performance mechanic that supercharges slow queries with indexes.',
-  },
-  {
-    id: 'testing',
-    number: 10,
-    name: 'Testing Manager (Quality & Reconciliation)',
-    category: 'Process Management',
-    icon: CheckCheck,
-    problem: 'Source ERP portal has 60 students, but only 52 records appear in the warehouse after loading.',
-    whyRequired: 'Reconciles source vs target row counts, verifies unique keys, checks null values, and validates integrity.',
-    solution: 'Execute 5 automated data quality tests, pinpoint 8 missing IDs, and achieve 100% test pass rate.',
-    actionName: 'Run 5 Data Quality Audit Tests',
-    annaUnivUnit: 'Unit IV: Tuning & Testing - Data Quality, Completeness & Reconciliation',
-    takeaway: 'The quality inspector guaranteeing warehouse numbers are 100% accurate and trustworthy.',
-  },
+const MANAGERS_ORDER = [
+  'config',
+  'scheduling',
+  'event',
+  'database',
+  'backup',
+  'load',
+  'warehouse',
+  'query',
+  'tuning',
+  'testing',
 ];
+
+const SYLLABUS_UNITS: Record<string, string> = {
+  config: 'Unit IV: System Management - Configuration & Resource Limits',
+  scheduling: 'Unit IV: Process Management - Scheduling Batch Processing',
+  event: 'Unit IV: System Administration - Event Logging & Audit Trails',
+  database: 'Unit IV: Data Warehouse Administration - Database Security & RBAC',
+  backup: 'Unit IV: System Management - Backup & Disaster Recovery',
+  load: 'Unit II & IV: ETL Architecture - Extraction, Cleaning & Loading',
+  warehouse: 'Unit I & IV: Dimensional Modeling - Star Schema & Partitioning',
+  query: 'Unit IV: Process Management - Query Management & Execution',
+  tuning: 'Unit IV: Tuning & Testing - Bitmap & B-Tree Indexing Strategies',
+  testing: 'Unit IV: Tuning & Testing - Data Quality & Reconciliation',
+};
 
 const SlideManager: React.FC<SlideManagerProps> = ({
   managerNumber,
-  simulationRan,
-  simulationOutput,
-  onRunSimulation,
+  autoRunDemo,
+  onSystemAction,
 }) => {
-  const meta = MANAGERS_META[managerNumber - 1];
-  const Icon = meta.icon;
-  const isSystem = meta.category === 'System Management';
+  const managerId = MANAGERS_ORDER[managerNumber - 1];
+  const manager: ManagerScenario = MANAGERS_DATA[managerId];
+  const Icon = manager.icon;
+  const isSystem = manager.category === 'System Manager';
+
+  // Simulation Animation State: 'idle' | 'input_flowing' | 'step1' | 'step2' | 'step3' | 'output_flowing' | 'completed'
+  const [simState, setSimState] = useState<string>('idle');
+  const [activeStep, setActiveStep] = useState<number>(0);
+
+  const runSimulation = useCallback(() => {
+    setSimState('input_flowing');
+    setActiveStep(0);
+
+    setTimeout(() => {
+      setSimState('step1');
+      setActiveStep(1);
+    }, 600);
+
+    setTimeout(() => {
+      setSimState('step2');
+      setActiveStep(2);
+    }, 1400);
+
+    setTimeout(() => {
+      setSimState('step3');
+      setActiveStep(3);
+    }, 2200);
+
+    setTimeout(() => {
+      setSimState('output_flowing');
+    }, 3000);
+
+    setTimeout(() => {
+      setSimState('completed');
+    }, 3700);
+
+    // Also trigger the central state update
+    if (managerId === 'config') {
+      onSystemAction.updateServerConfig?.({ storageAllocatedGb: 2048 });
+    } else if (managerId === 'scheduling' && onSystemAction.scheduledJobs?.length > 0) {
+      onSystemAction.runJobManually?.(onSystemAction.scheduledJobs[0].id);
+    } else if (managerId === 'load') {
+      onSystemAction.runETL?.('attendance_batch_valid');
+    } else if (managerId === 'backup') {
+      onSystemAction.createBackup?.('Presentation Demo Snapshot');
+    } else if (managerId === 'query') {
+      onSystemAction.executeQuery?.('SELECT department_id, COUNT(*) as offers, ROUND(AVG(package_lpa), 2) as avg_pkg FROM Fact_Placement GROUP BY department_id');
+    } else if (managerId === 'tuning') {
+      onSystemAction.createIndex?.('Dim_Student', 'department_id', 'Bitmap');
+    } else if (managerId === 'testing') {
+      onSystemAction.runDataQualityTests?.();
+    }
+  }, [managerId, onSystemAction]);
+
+  const resetSimulation = () => {
+    setSimState('idle');
+    setActiveStep(0);
+  };
+
+  // Auto-run simulation on slide load if auto-demo is enabled
+  useEffect(() => {
+    if (autoRunDemo) {
+      const timer = setTimeout(() => {
+        runSimulation();
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [autoRunDemo, runSimulation]);
+
+  const isRunning = simState !== 'idle' && simState !== 'completed';
+  const isCompleted = simState === 'completed';
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Header Info */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center space-x-3.5">
-          <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg ${
-              isSystem ? 'bg-blue-600' : 'bg-emerald-600'
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch animate-in fade-in duration-300">
+      {/* ==================================================================== */}
+      {/* LEFT COLUMN: EDUCATIONAL CONTENT (Width: 5 of 12 cols)               */}
+      {/* ==================================================================== */}
+      <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
+        {/* 1. Header Information */}
+        <div className="space-y-3">
+          <div className="flex items-center space-x-3">
+            <div
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0 ${
+                isSystem ? 'bg-blue-600' : 'bg-emerald-600'
+              }`}
+            >
+              <Icon className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">
+                  MODULE #{manager.number} OF 10
+                </span>
+                <span className="text-slate-600">•</span>
+                <span
+                  className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                    isSystem ? 'bg-blue-900/60 text-blue-300' : 'bg-emerald-900/60 text-emerald-300'
+                  }`}
+                >
+                  {manager.category}
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-0.5">
+                {manager.name}
+              </h2>
+            </div>
+          </div>
+
+          <div className="text-xs font-mono text-slate-400 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-800 inline-block">
+            {SYLLABUS_UNITS[manager.id]}
+          </div>
+
+          {/* Key Summary Banner */}
+          <div className="bg-gradient-to-r from-blue-950/80 via-slate-900 to-indigo-950/80 border-l-4 border-blue-500 p-3 rounded-r-xl">
+            <div className="flex items-center space-x-2 text-xs">
+              <Lightbulb className="w-4 h-4 text-blue-400 shrink-0" />
+              <span className="text-blue-300 font-bold uppercase font-mono text-[11px]">Core Goal:</span>
+              <span className="text-slate-200 font-medium">{manager.oneLineSummary}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Educational Breakdown: Problem -> Why Required -> Solution */}
+        <div className="space-y-3">
+          {/* Card 1: Problem */}
+          <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 space-y-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5 font-mono">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              1. The Real-World Problem
+            </span>
+            <p className="text-xs text-slate-300 leading-relaxed">{manager.problem}</p>
+          </div>
+
+          {/* Card 2: Why Required / Explanation */}
+          <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 space-y-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 font-mono">
+              <HelpCircle className="w-3.5 h-3.5" />
+              2. Why This Manager is Required
+            </span>
+            <p className="text-xs text-slate-300 leading-relaxed">{manager.simpleExplanation}</p>
+          </div>
+
+          {/* Card 3: Key Concept to Know */}
+          <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 space-y-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 font-mono">
+              <BookOpen className="w-3.5 h-3.5" />
+              3. Concept: {manager.glossary.term}
+            </span>
+            <p className="text-xs text-slate-300 leading-relaxed">{manager.glossary.meaning}</p>
+          </div>
+        </div>
+
+        {/* 3. Single Prominent Simulation Trigger */}
+        <div className="pt-2 flex items-center space-x-3">
+          <button
+            onClick={runSimulation}
+            disabled={isRunning}
+            className={`flex-1 py-3 px-5 rounded-xl font-black text-xs text-white shadow-lg transition-all flex items-center justify-center space-x-2 ${
+              isRunning
+                ? 'bg-amber-500 cursor-wait animate-pulse'
+                : isCompleted
+                ? 'bg-emerald-600 hover:bg-emerald-500'
+                : 'bg-blue-600 hover:bg-blue-500 active:scale-95'
             }`}
           >
-            <Icon className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">
-                MODULE #{meta.number} OF 10
-              </span>
-              <span className="text-slate-600">•</span>
-              <span
-                className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                  isSystem ? 'bg-blue-900/60 text-blue-300' : 'bg-emerald-900/60 text-emerald-300'
-                }`}
-              >
-                {meta.category}
-              </span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-0.5">
-              {meta.name}
-            </h2>
-          </div>
-        </div>
-
-        {/* Syllabus Tag & Demo Action Button */}
-        <div className="flex items-center space-x-3">
-          <span className="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 hidden lg:inline-block">
-            {meta.annaUnivUnit}
-          </span>
-          <button
-            onClick={() => onRunSimulation(meta.id)}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition flex items-center space-x-2"
-          >
-            <Play className="w-4 h-4 fill-current" />
-            <span>{simulationRan ? 'Run Again' : meta.actionName}</span>
+            {isRunning ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>Executing Step {activeStep}/3...</span>
+              </>
+            ) : isCompleted ? (
+              <>
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Run Simulation Again</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4 fill-current" />
+                <span>RUN LIVE SIMULATION</span>
+              </>
+            )}
           </button>
+
+          {(isCompleted || isRunning) && (
+            <button
+              onClick={resetSimulation}
+              className="p-3 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition"
+              title="Reset Simulation"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Key Takeaway Banner */}
-      <div className="bg-gradient-to-r from-blue-950/80 via-slate-900 to-indigo-950/80 border-l-4 border-blue-500 p-3.5 rounded-r-xl">
-        <div className="flex items-center space-x-2.5 text-xs sm:text-sm">
-          <Lightbulb className="w-4 h-4 text-blue-400 shrink-0" />
-          <span className="text-blue-300 font-bold uppercase font-mono text-xs">Summary:</span>
-          <span className="text-slate-200 font-medium">{meta.takeaway}</span>
-        </div>
-      </div>
-
-      {/* 3-Card Concept Breakdown: 1. Problem -> 2. Why Required -> 3. Solution */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-        <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 block font-mono">
-            1. The Problem
-          </span>
-          <p className="text-xs text-slate-300 leading-relaxed">{meta.problem}</p>
-        </div>
-
-        <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 block font-mono">
-            2. Why Required
-          </span>
-          <p className="text-xs text-slate-300 leading-relaxed">{meta.whyRequired}</p>
-        </div>
-
-        <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block font-mono">
-            3. Architectural Solution
-          </span>
-          <p className="text-xs text-slate-300 leading-relaxed">{meta.solution}</p>
-        </div>
-      </div>
-
-      {/* Visual Outcome Card & Chart */}
-      <div className="space-y-3">
-        <VisualOutcomeCard managerId={meta.id} />
-
-        {simulationOutput && (
-          <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 flex items-center space-x-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>
-              <strong className="text-emerald-300">Live Simulation Result:</strong> {simulationOutput}
+      {/* ==================================================================== */}
+      {/* RIGHT COLUMN: LIVE SIMULATION & VISUAL OUTCOMES (Width: 7 of 12 cols)*/}
+      {/* ==================================================================== */}
+      <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xl">
+        {/* Simulation Section Header */}
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center space-x-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+              Live Animated Data Flow Simulation
             </span>
           </div>
-        )}
+
+          <span
+            className={`text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full border ${
+              simState === 'idle'
+                ? 'bg-slate-800 text-slate-400 border-slate-700'
+                : isRunning
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
+                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+            }`}
+          >
+            {simState === 'idle' && 'Status: Ready to Run'}
+            {simState === 'input_flowing' && '→ Ingesting Input Data...'}
+            {simState.startsWith('step') && `⚙️ Step ${activeStep}/3 Inside Manager...`}
+            {simState === 'output_flowing' && '→ Committing Verified Output...'}
+            {simState === 'completed' && '✅ Simulation Completed Successfully'}
+          </span>
+        </div>
+
+        {/* 3-Stage Visual Grid: INPUT -> PROCESS -> OUTPUT */}
+        <div className="grid grid-cols-1 md:grid-cols-11 gap-2.5 items-stretch">
+          {/* Stage 1: Input (Before) */}
+          <div
+            className={`md:col-span-3 rounded-xl p-3 border transition-all duration-300 flex flex-col justify-between ${
+              simState === 'input_flowing'
+                ? 'bg-amber-500/20 border-amber-400 shadow-md ring-2 ring-amber-400/40'
+                : 'bg-slate-950 border-slate-800'
+            }`}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase text-amber-400">1. INPUT</span>
+                <span className="text-[10px] font-semibold text-slate-400 truncate max-w-[90px]">
+                  {manager.input.visualBadge}
+                </span>
+              </div>
+              <h4 className="font-bold text-xs text-white mb-2">{manager.input.title}</h4>
+              <div className="space-y-1.5 text-[11px] text-slate-300">
+                {manager.input.items.map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1"></span>
+                    <span className="leading-tight">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Flow Arrow 1 */}
+          <div className="md:col-span-1 hidden md:flex items-center justify-center">
+            <div
+              className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                simState === 'input_flowing'
+                  ? 'bg-amber-500 text-white animate-bounce shadow'
+                  : 'bg-slate-800 text-slate-500'
+              }`}
+            >
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          {/* Stage 2: Process (Inside Manager) */}
+          <div
+            className={`md:col-span-3 rounded-xl p-3 border transition-all duration-300 flex flex-col justify-between ${
+              simState.startsWith('step')
+                ? 'bg-blue-950/60 border-blue-500 shadow-md ring-2 ring-blue-500/40'
+                : 'bg-slate-950 border-slate-800'
+            }`}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase text-blue-400">2. PROCESS</span>
+                <span className="text-[10px] text-slate-400">3 Internal Steps</span>
+              </div>
+              <h4 className="font-bold text-xs text-white mb-2">{manager.name}</h4>
+              <div className="space-y-1.5">
+                {manager.processSteps.map((step) => {
+                  const isStepActive = activeStep === step.step;
+                  const isStepDone = activeStep > step.step || isCompleted;
+
+                  return (
+                    <div
+                      key={step.step}
+                      className={`p-1.5 rounded-lg border text-[10px] transition-all ${
+                        isStepActive
+                          ? 'bg-blue-600 text-white border-blue-400 font-bold shadow-xs'
+                          : isStepDone
+                          ? 'bg-emerald-950/60 text-slate-200 border-emerald-500/40'
+                          : 'bg-slate-900 text-slate-400 border-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="truncate">
+                          Step {step.step}: {step.title}
+                        </span>
+                        {isStepDone ? (
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                        ) : isStepActive ? (
+                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping shrink-0"></span>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Flow Arrow 2 */}
+          <div className="md:col-span-1 hidden md:flex items-center justify-center">
+            <div
+              className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                simState === 'output_flowing'
+                  ? 'bg-emerald-500 text-white animate-bounce shadow'
+                  : isCompleted
+                  ? 'bg-emerald-900/60 text-emerald-300'
+                  : 'bg-slate-800 text-slate-500'
+              }`}
+            >
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          {/* Stage 3: Output (After) */}
+          <div
+            className={`md:col-span-3 rounded-xl p-3 border transition-all duration-300 flex flex-col justify-between ${
+              isCompleted
+                ? 'bg-emerald-950/60 border-emerald-500 shadow-md ring-2 ring-emerald-500/40'
+                : simState === 'output_flowing'
+                ? 'bg-emerald-500/20 border-emerald-400'
+                : 'bg-slate-950 border-slate-800'
+            }`}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase text-emerald-400">3. OUTPUT</span>
+                <span className="text-[10px] font-bold text-emerald-400 truncate max-w-[90px]">
+                  {manager.output.visualBadge}
+                </span>
+              </div>
+              <h4 className="font-bold text-xs text-white mb-2">{manager.output.title}</h4>
+              <div className="space-y-1.5 text-[11px]">
+                {manager.output.items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex items-start gap-1.5 ${
+                      isCompleted ? 'text-emerald-200 font-medium' : 'text-slate-400'
+                    }`}
+                  >
+                    <CheckCircle2
+                      className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
+                        isCompleted ? 'text-emerald-400' : 'text-slate-600'
+                      }`}
+                    />
+                    <span className="leading-tight">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Visual Outcome Chart */}
+        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5 text-blue-400" />
+              {manager.chartTitle}
+            </span>
+            <span className="text-[11px] font-mono text-emerald-400 font-bold">
+              {manager.output.visualBadge}
+            </span>
+          </div>
+
+          <div className="h-44 w-full pt-1">
+            <ResponsiveContainer width="100%" height="100%">
+              {renderDedicatedChart(manager)}
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Live System Outcome Alert Bar */}
+        <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 text-xs font-mono flex items-center justify-between">
+          <div className="flex items-center space-x-2 text-slate-300">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="truncate">
+              <strong>Outcome:</strong> {manager.output.description}
+            </span>
+          </div>
+          <span className="text-emerald-400 font-bold shrink-0 hidden sm:inline">
+            PSG iTech State Updated
+          </span>
+        </div>
       </div>
     </div>
   );
 };
+
+/* -------------------------------------------------------------------------- */
+/* RECHARTS CHART RENDERER HELPER                                             */
+/* -------------------------------------------------------------------------- */
+function renderDedicatedChart(manager: ManagerScenario) {
+  const data = manager.chartData;
+
+  switch (manager.id) {
+    case 'config':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} />
+          <YAxis stroke="#94a3b8" fontSize={11} unit=" GB" domain={[0, 1500]} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+            formatter={(value: any) => [`${value} GB Free Storage`, 'Capacity']}
+          />
+          <Bar dataKey="freeGb" radius={[6, 6, 0, 0]} barSize={48}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      );
+
+    case 'scheduling':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="window" stroke="#94a3b8" fontSize={11} />
+          <YAxis stroke="#94a3b8" fontSize={11} unit="%" domain={[0, 100]} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+          />
+          <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '4px' }} />
+          <Bar dataKey="collegeStaffQueries" name="Staff Queries (%)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="batchLoad" name="Batch Data Loading (%)" fill="#10b981" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      );
+
+    case 'event':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="category" stroke="#94a3b8" fontSize={11} />
+          <YAxis stroke="#94a3b8" fontSize={11} allowDecimals={false} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+            formatter={(value: any) => [`${value} Events`, 'Count']}
+          />
+          <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={44}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      );
+
+    case 'database':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="role" stroke="#94a3b8" fontSize={11} />
+          <YAxis stroke="#94a3b8" fontSize={11} domain={[0, 4]} allowDecimals={false} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+          />
+          <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '4px' }} />
+          <Bar dataKey="allowedPerms" name="Allowed (SELECT, INSERT, UPDATE)" fill="#10b981" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="deniedPerms" name="Denied / Blocked" fill="#ef4444" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      );
+
+    case 'backup':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="state" stroke="#94a3b8" fontSize={11} />
+          <YAxis stroke="#94a3b8" fontSize={11} unit="%" domain={[0, 100]} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+            formatter={(val: any) => [`${val}% Availability`, 'Status']}
+          />
+          <Bar dataKey="dataAvailablePct" radius={[6, 6, 0, 0]} barSize={48}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      );
+
+    case 'load':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="stage" stroke="#94a3b8" fontSize={11} />
+          <YAxis stroke="#94a3b8" fontSize={11} domain={[0, 8]} allowDecimals={false} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+            formatter={(val: any) => [`${val} Records`, 'Row Count']}
+          />
+          <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={44}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      );
+
+    case 'warehouse':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="method" stroke="#94a3b8" fontSize={11} />
+          <YAxis stroke="#94a3b8" fontSize={11} unit="%" domain={[0, 100]} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+            formatter={(val: any) => [`${val}% Disk Scanned`, 'Disk I/O']}
+          />
+          <Bar dataKey="diskScannedPct" radius={[6, 6, 0, 0]} barSize={48}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      );
+
+    case 'query':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="dept" stroke="#94a3b8" fontSize={11} />
+          <YAxis stroke="#94a3b8" fontSize={11} unit=" LPA" domain={[0, 20]} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+            formatter={(val: any) => [`${val} LPA Avg Package`, 'Recruitment']}
+          />
+          <Bar dataKey="avgSalaryLpa" radius={[6, 6, 0, 0]} barSize={42}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      );
+
+    case 'tuning':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="type" stroke="#94a3b8" fontSize={11} />
+          <YAxis stroke="#94a3b8" fontSize={11} unit=" ms" domain={[0, 60]} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+            formatter={(val: any) => [`${val} milliseconds`, 'Query Latency']}
+          />
+          <Bar dataKey="timeMs" radius={[6, 6, 0, 0]} barSize={48}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      );
+
+    case 'testing':
+      return (
+        <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <XAxis dataKey="testName" stroke="#94a3b8" fontSize={10} />
+          <YAxis stroke="#94a3b8" fontSize={11} unit="%" domain={[0, 100]} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
+            formatter={(val: any) => [`${val}% Pass`, 'Quality Check']}
+          />
+          <Bar dataKey="scorePct" radius={[6, 6, 0, 0]} barSize={38}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      );
+
+    default:
+      return <div className="text-xs text-slate-500">No chart data</div>;
+  }
+}
 
 /* -------------------------------------------------------------------------- */
 /* SLIDE 11: GRAND END-TO-END VISUAL ARCHITECTURE                             */
@@ -872,52 +1200,52 @@ const SpeakerNotesContent: React.FC<{ slideIndex: number }> = ({ slideIndex }) =
     },
     {
       title: 'Manager 1: System Configuration Manager',
-      sayThis: 'Explain that the college warehouse was running low on storage (only 716 GB free). Point to the live simulation expanding allocation to 2048 GB with 16 GB RAM buffer pool.',
-      analogy: 'Like upgrading from a 64 GB phone to a 256 GB phone so your video recordings do not crash halfway through.',
+      sayThis: 'Point to the LEFT side: explain that storage was nearly exhausted at 716 GB free. Point to the RIGHT side: click Run Simulation to watch the storage expand to 2048 GB with 1228 GB free storage in the comparison chart.',
+      analogy: 'Like upgrading from a 64 GB phone to a 256 GB phone so 4K video recording does not crash halfway through.',
     },
     {
       title: 'Manager 2: System Scheduling Manager',
-      sayThis: 'Highlight why we cannot load attendance during the day (it locks tables). Show the 24-hour timeline chart: daytime is 100% reserved for users, while the batch loader fires automatically at 11:30 PM.',
-      analogy: 'Like scheduling a phone operating system update to install at 2:00 AM while you are asleep.',
+      sayThis: 'Point to the LEFT: explain that daytime manual uploads lock tables. On the RIGHT: watch the simulation schedule the job at 11:30 PM midnight with 0% impact on daytime users.',
+      analogy: 'Like scheduling an iOS or Android update to install automatically at 2:00 AM while you are asleep.',
     },
     {
       title: 'Manager 3: System Event Manager',
-      sayThis: 'Discuss the problem of silent failures. When a midnight network drops, this manager captures the error, tags it as ERROR severity, and alerts the administrator immediately.',
+      sayThis: 'Point to the LEFT: discuss silent failures when scripts crash. On the RIGHT: watch the event manager capture the error signal, label it ERROR severity, and alert the administrator.',
       analogy: 'The black-box flight recorder and alarm bell of the warehouse.',
     },
     {
       title: 'Manager 4: System Database Manager',
-      sayThis: 'Explain Role-Based Access Control (RBAC). Point to the permission matrix chart: Admin has write privileges, but unauthorized Guest accounts are blocked from tampering with marks.',
-      analogy: 'Security badges in an office: only managers can enter the vault, visitors are read-only.',
+      sayThis: 'Point to the LEFT: discuss RBAC. On the RIGHT: watch the simulation permit the Admin write request while denying and blocking the Guest user tampering with exam marks.',
+      analogy: 'Security keycards in an office: only managers can enter the vault; visitors have zero write access.',
     },
     {
       title: 'Manager 5: System Backup Recovery Manager',
-      sayThis: 'Demonstrate disaster recovery. Show the timeline: 100% before crash, 0% during crash, and 100% restored after mounting snapshot BAK-001.',
-      analogy: 'System Restore point in Windows or an iCloud backup for your smartphone.',
+      sayThis: 'Point to the LEFT: discuss hardware crashes. On the RIGHT: watch the disaster timeline drop to 0% during crash, then immediately restore back to 100% after mounting snapshot BAK-001.',
+      analogy: 'A Time Machine or iCloud backup for your smartphone.',
     },
     {
       title: 'Manager 6: Load Manager (ETL Pipeline)',
-      sayThis: 'Explain Extract, Transform, Load. Point to the ETL funnel chart: 7 raw records extracted from campus scanners, 1 duplicate student ID quarantined, and 6 clean records loaded.',
-      analogy: 'An oil refinery taking crude oil and removing impurities before delivering petrol.',
+      sayThis: 'Point to the LEFT: raw attendance files arrive with duplicate scans. On the RIGHT: watch the 3-step ETL pipeline extract 7 rows, quarantine 1 duplicate, and load 6 clean rows.',
+      analogy: 'An oil refinery taking crude oil and removing impurities before delivering clean petrol.',
     },
     {
       title: 'Manager 7: Warehouse Manager (Dimensional Modeling)',
-      sayThis: 'Show how flat tables are organized into a central Fact_Attendance connected to Dim_Student and Dim_Department. Point to the chart: partition pruning reads only the 2024 partition, saving 75% disk work.',
-      analogy: 'Filing college records in 4 labeled folders (2021, 2022, 2023, 2024) instead of dumping them all into one massive box.',
+      sayThis: 'Point to the LEFT: mixed historical years are slow to scan. On the RIGHT: watch the Star Schema mount year partitions, pruning 75% of disk reads.',
+      analogy: 'Filing student records into 4 labeled folders (2021, 2022, 2023, 2024) instead of dumping them all into one giant heap.',
     },
     {
       title: 'Manager 8: Query Manager (Analytical SQL)',
-      sayThis: 'Explain how the Principal’s SQL query is parsed and executed in 14 milliseconds, returning department-wise placement package averages (IT 16.5 LPA, CSE 13.5 LPA).',
-      analogy: 'Google search for your enterprise database: parses the question, groups results, and calculates averages instantly.',
+      sayThis: 'Point to the LEFT: the Principal needs placement salary averages. On the RIGHT: watch the SQL engine parse and calculate department averages (IT 16.5 LPA, CSE 13.5 LPA) in 14 milliseconds.',
+      analogy: 'Google search for your data warehouse: parses the question, groups results, and calculates averages instantly.',
     },
     {
       title: 'Manager 9: Tuning Manager (Indexing)',
-      sayThis: 'Contrast Full Table Scan with Index Scan. Show the benchmark: searching without index took 48.5 ms; building a Bitmap Index dropped latency to 12.2 ms (4x faster).',
+      sayThis: 'Point to the LEFT: Full Table Scans take 48.5 ms. On the RIGHT: watch the Bitmap Index build, accelerating the query down to 12.2 ms (4x faster).',
       analogy: 'The index at the back of a 500-page textbook: jumping straight to page 142 instead of reading every page from page 1.',
     },
     {
       title: 'Manager 10: Testing Manager (Quality Audit)',
-      sayThis: 'Explain data reconciliation. The source portal had 60 students but warehouse only showed 52. Testing Manager pinpoints the 8 missing IDs and verifies all 5 quality tests at 100%.',
+      sayThis: 'Point to the LEFT: 60 students in source ERP but only 52 in the warehouse. On the RIGHT: watch Testing Manager pinpoint the 8 missing IDs and verify all 5 quality tests at 100%.',
       analogy: 'Quality control inspector at an automobile factory inspecting every car before it leaves the assembly line.',
     },
     {
