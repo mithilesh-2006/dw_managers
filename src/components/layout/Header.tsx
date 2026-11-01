@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Database, Home, GraduationCap, Sparkles } from 'lucide-react';
+import { Database, Home, Presentation, Sparkles } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const location = useLocation();
@@ -23,23 +23,34 @@ export const Header: React.FC = () => {
             </span>
           </div>
           <p className="text-[11px] text-slate-500 hidden sm:block">
-            Understanding What Happens Behind the Scenes
+            PSG iTech College Case Study • 10 Managers Demo
           </p>
         </div>
       </Link>
 
-      {/* Right: Simple Navigation */}
-      <div className="flex items-center space-x-2">
+      {/* Right: Quick Action Navigation */}
+      <div className="flex items-center space-x-2 sm:space-x-3">
+        {/* All Managers Link */}
         <Link
           to="/"
           className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
             isHome
-              ? 'bg-blue-50 text-blue-700 border border-blue-200'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              ? 'bg-slate-100 text-slate-900 font-bold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
           <Home className="w-3.5 h-3.5" />
-          <span>All 10 Managers</span>
+          <span className="hidden sm:inline">All 10 Managers</span>
+        </Link>
+
+        {/* Presentation Demo Mode Button */}
+        <Link
+          to="/presentation"
+          className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm hover:shadow transition"
+          title="Open Classroom Presentation Demo Deck"
+        >
+          <Presentation className="w-4 h-4" />
+          <span>Presentation Mode</span>
         </Link>
       </div>
     </header>

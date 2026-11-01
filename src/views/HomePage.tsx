@@ -9,6 +9,9 @@ import {
   Workflow,
   GraduationCap,
   PlayCircle,
+  Presentation,
+  Maximize2,
+  CheckCircle2,
 } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -19,7 +22,7 @@ export const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-16">
       {/* Top Banner / Hero */}
-      <div className="bg-gradient-to-b from-blue-900 via-slate-900 to-slate-900 text-white pt-10 pb-14 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+      <div className="bg-gradient-to-b from-blue-900 via-slate-900 to-slate-900 text-white pt-10 pb-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         <div className="max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold uppercase tracking-wider mb-4">
             <GraduationCap className="w-4 h-4 text-blue-400" />
@@ -29,24 +32,34 @@ export const HomePage: React.FC = () => {
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white mb-3">
             Data Warehouse Visualizer
           </h1>
-          <p className="text-lg sm:text-xl text-blue-200 font-medium max-w-3xl mx-auto mb-6">
-            Understanding What Happens Behind the Scenes
+          <p className="text-lg sm:text-xl text-blue-200 font-medium max-w-3xl mx-auto mb-4">
+            Interactive Presentation Demo: Understanding What Happens Behind the Scenes
           </p>
 
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8">
-            A Data Warehouse has 10 dedicated managers working together. Select any manager below to
-            see an interactive simulation of its <strong className="text-white">Input</strong>,{' '}
-            <strong className="text-white">Internal Processing</strong>, and{' '}
-            <strong className="text-white">Output</strong> with visual charts.
+          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed mb-6">
+            A complete seminar demonstration tool for the 10 Data Warehouse Managers. Watch how raw student data moves
+            through each manager with live animated data flows, before-and-after states, and visual outcome charts.
           </p>
+
+          {/* Prominent Seminar Presentation CTA */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <Link
+              to="/presentation"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-extrabold text-sm shadow-lg shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all flex items-center space-x-2"
+            >
+              <Presentation className="w-4 h-4" />
+              <span>Launch Seminar Presentation Demo (12 Slides Deck)</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
 
           {/* Quick Jump Bar */}
-          <div className="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-1.5 max-w-4xl mx-auto">
             {managersList.map((m) => (
               <Link
                 key={m.id}
                 to={`/manager/${m.id}`}
-                className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-800/80 hover:bg-blue-600 border border-slate-700 text-xs text-slate-200 hover:text-white transition"
+                className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-blue-600 border border-slate-700 text-xs text-slate-200 hover:text-white transition"
               >
                 <span className="font-bold text-blue-400">#{m.number}</span>
                 <span>{m.name.replace('System ', '').replace(' Manager', '')}</span>
@@ -57,7 +70,33 @@ export const HomePage: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        {/* Seminar Presentation Features Highlight Card */}
+        <div className="mb-10 bg-gradient-to-r from-blue-900 via-slate-900 to-indigo-950 text-white p-5 sm:p-6 rounded-2xl border border-blue-500/30 shadow-md">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2 text-blue-400 text-xs font-mono font-bold uppercase tracking-wider">
+                <Sparkles className="w-4 h-4" />
+                <span>Classroom Presentation Ready</span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">
+                Projector Mode with Speaker Notes & Live Auto-Simulation
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
+                Features keyboard slide navigation (Arrow keys), real-time speaker notes script with student analogies,
+                animated 3-stage flows (Input $\rightarrow$ Process $\rightarrow$ Output), and Recharts charts.
+              </p>
+            </div>
+            <Link
+              to="/presentation"
+              className="px-5 py-2.5 bg-white hover:bg-slate-100 text-slate-950 rounded-xl text-xs font-extrabold shadow transition shrink-0 flex items-center space-x-1.5"
+            >
+              <Presentation className="w-4 h-4 text-blue-600" />
+              <span>Start Slide Show</span>
+            </Link>
+          </div>
+        </div>
+
         {/* Section 1: System Managers */}
         <div className="mb-12">
           <div className="flex items-center space-x-3 mb-5 bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-sm">
@@ -138,11 +177,7 @@ const ManagerCard: React.FC<ManagerCardProps> = ({ manager }) => {
             >
               #{manager.number}
             </span>
-            <span
-              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                isSystem ? 'bg-slate-100 text-slate-600' : 'bg-slate-100 text-slate-600'
-              }`}
-            >
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
               {manager.category}
             </span>
           </div>
@@ -185,7 +220,7 @@ const ManagerCard: React.FC<ManagerCardProps> = ({ manager }) => {
       <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs font-semibold text-blue-600 group-hover:text-blue-700">
         <span className="inline-flex items-center space-x-1">
           <PlayCircle className="w-4 h-4" />
-          <span>Run Visualizer</span>
+          <span>Run Visualizer Demo</span>
         </span>
         <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
       </div>

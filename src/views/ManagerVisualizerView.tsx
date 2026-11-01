@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Database,
   Layers,
+  Presentation,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -122,6 +123,14 @@ export const ManagerVisualizerView: React.FC = () => {
               );
             })}
           </div>
+
+          <Link
+            to="/presentation"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition"
+          >
+            <Presentation className="w-3.5 h-3.5" />
+            <span>Presentation Mode</span>
+          </Link>
         </div>
       </div>
 
