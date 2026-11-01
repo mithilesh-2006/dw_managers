@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSimulation } from '../context/SimulationContext';
+import { VisualOutcomeCard } from '../components/presentation/VisualOutcomeCard';
 import {
   Presentation,
   ChevronLeft,
@@ -387,16 +388,16 @@ export const PresentationModeView: React.FC = () => {
             </button>
           </div>
 
-          {/* Simulation Output Box */}
+          {/* Rich Visual Presentation Outcome */}
           {simulationRan && (
-            <div className="bg-slate-950 border border-emerald-500/40 rounded-2xl p-4 text-xs font-mono space-y-2 animate-in fade-in">
-              <div className="text-emerald-400 font-bold flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>SIMULATION OUTCOME VERIFIED:</span>
+            <div className="space-y-3 pt-2">
+              <VisualOutcomeCard managerId={currentSlide.id} />
+              <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>
+                  <strong>Explanation for Students:</strong> {currentSlide.outcomeExplanation}
+                </span>
               </div>
-              <p className="text-slate-200 leading-relaxed">
-                {simulationOutput || currentSlide.outcomeExplanation}
-              </p>
             </div>
           )}
         </div>
